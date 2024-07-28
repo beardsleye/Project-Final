@@ -1,0 +1,198 @@
+---
+title: "EDA"
+author: "Emma Beardsley"
+format:
+  html:
+    toc: TRUE
+    toc-depth: 3
+---
+
+# Introduction
+In this file I will be conducting an exploratory data analysis to better understand the data set. The data set evaluates if someone has diabetes and tracks there risk factors such as Age, BMI, and other health conditions. In this EDA I will explore numeric summaries and distributions of variables and variables in respect to the response variable and each other. Discovering this will help us fit a model for prediction.
+
+# Data Cleaning
+First, read in the data. Then, to properly use the data we need to convert variables that get read in as numeric as factors.
+```{r Read in, warning=FALSE}
+library(tidyverse)
+#read in data
+diabetes_binary_health_indicators_BRFSS2015_csv <- read_csv("C:/Users/beard/Downloads/diabetes_binary_health_indicators_BRFSS2015.csv.zip")
+
+#select predictors and convert factors
+diabetes<-diabetes_binary_health_indicators_BRFSS2015_csv |>
+  select(c(Diabetes_binary,HighBP,HighChol,Smoker,Stroke,PhysActivity,HvyAlcoholConsump,Sex,Age,Income,BMI)) |>
+  mutate( , Diabetes_binary=factor(Diabetes_binary, levels=c(0,1), labels= c("No","Pre")),
+          HighBP=factor(HighBP, levels= c(0,1), labels=c("No","Yes")),
+          HighChol=factor(HighChol, levels= c(0,1), labels=c("No","Yes")),
+          Smoker=factor(Smoker, levels= c(0,1), labels=c("No","Yes")),
+          Stroke=factor(Stroke, levels= c(0,1), labels=c("No","Yes")),
+          PhysActivity=factor(PhysActivity, levels= c(0,1), labels=c("No","Yes")),
+          HvyAlcoholConsump=factor(HvyAlcoholConsump, levels= c(0,1), labels=c("No","Yes")),
+          Sex=factor(Sex, levels= c(0,1), labels=c("Female","Male")),
+          Age=factor(Age, levels= 1:14, labels=c("18-24","25-29","30-34","35-39","40-44","45-49","50-54","55-59","60-64","65-69","70-74","75-79","80+","Unkown/Missing")),
+          Income=factor(Income, levels= c(0:8,77,99, NA_real_), labels=c(">$10,000","$10,000-15,000","$15,000-20,000","$20,000-25,000","$25,000-35,000","$35,000-50,000","$50,000-75,000","$75,000+","Unkown","Refused","Missing"))) 
+
+head(diabetes)
+
+```
+# Check Missingness
+```{r Missing, warning=FALSE}
+colSums(is.na(diabetes))
+```
+
+# Numeric Summeries
+Evaluate numeric variables with numeric summaries. Plot histogram of numeric variables. Plots of numeric variables factored by Diabetes Status.
+```{r Numeric, warning=FALSE}
+library(psych)
+library(ggplot2)
+
+#numeric summary
+describe(diabetes$BMI)
+
+#plots of numeric predictors
+ggplot(diabetes, aes(x=BMI)) +
+  geom_histogram(fill="green") +
+  labs(x="BMI",
+       y="Count")
+
+
+#plots of numeric predictors factored by Diabetes Status
+ggplot(diabetes, aes(x=BMI, fill=Diabetes_binary)) +
+  geom_density()+
+  labs(x="BMI",
+       y="Density")+
+  scale_fill_manual(values=c("No"="green", "Pre"="pink"), name="Diabetes Status")
+
+```
+# Frequencies 
+Creation of bar charts for categorical variables with frequencies layered on top. Note the y-axis denotes counts.
+```{r Frequencies,warning=FALSE}
+diabetes_chart<-ggplot(diabetes, aes(x=Diabetes_binary)) +
+  geom_bar(fill="green")+
+  geom_text(stat = "count", aes(label=paste0(round(..count../sum(..count..)*100,1),"%")), vjust=-.1)+
+  labs(x="Diabetes Status",
+       y="Frequencies")
+diabetes_chart
+
+HighBP_chart<-ggplot(diabetes, aes(x=HighBP)) +
+  geom_bar(fill="green")+
+  geom_text(stat = "count", aes(label=paste0(round(..count../sum(..count..)*100,1),"%")),vjust=-.05)+
+  labs(x="High BP",
+       y="Frequencies")
+HighBP_chart
+
+HighChol_chart<-ggplot(diabetes, aes(x=HighChol)) +
+  geom_bar(fill="green")+
+  geom_text(stat = "count", aes(label=paste0(round(..count../sum(..count..)*100,1),"%")),vjust=-.05)+
+  labs(x="High Cholestrol",
+       y="Frequencies")
+HighChol_chart
+
+Smoker_chart<-ggplot(diabetes, aes(x=Smoker)) +
+  geom_bar(fill="green")+
+  geom_text(stat = "count", aes(label=paste0(round(..count../sum(..count..)*100,1),"%")),vjust=-.05)+
+  labs(x="Smoker",
+       y="Frequencies")
+Smoker_chart
+
+Stroke_chart<-ggplot(diabetes, aes(x=Stroke)) +
+  geom_bar(fill="green")+
+  geom_text(stat = "count", aes(label=paste0(round(..count../sum(..count..)*100,1),"%")),vjust=-.05)+
+  labs(x="Stroke",
+       y="Frequencies")
+Stroke_chart
+
+Activity_chart<-ggplot(diabetes, aes(x=PhysActivity)) +
+  geom_bar(fill="green")+
+  geom_text(stat = "count", aes(label=paste0(round(..count../sum(..count..)*100,1),"%")),vjust=-.05)+
+  labs(x="Physical Activity in past 30 days",
+       y="Frequencies")
+Activity_chart
+
+Alcohol_chart<-ggplot(diabetes, aes(x=HvyAlcoholConsump)) +
+  geom_bar(fill="green")+
+  geom_text(stat = "count", aes(label=paste0(round(..count../sum(..count..)*100,1),"%")),vjust=-.05)+
+  labs(x="Heavy drinking",
+       y="Frequencies")
+Alcohol_chart
+
+Sex_chart<-ggplot(diabetes, aes(x=Sex)) +
+  geom_bar(fill="green")+
+  geom_text(stat = "count", aes(label=paste0(round(..count../sum(..count..)*100,1),"%")),vjust=-.05)+
+  labs(x="Sex",
+       y="Frequencies")
+Sex_chart
+
+Age_chart<-ggplot(diabetes, aes(x=Age)) +
+  geom_bar(fill="green")+
+  geom_text(stat = "count", aes(label=paste0(round(..count../sum(..count..)*100,1),"%")),vjust=-.05)+
+  labs(x="Age",
+       y="Frequencies")
+Age_chart
+
+Income_chart<-ggplot(diabetes, aes(x=Income)) +
+  geom_bar(fill="green")+
+  geom_text(stat = "count", aes(label=paste0(round(..count../sum(..count..)*100,1),"%")),vjust=-.05)+
+  labs(x="Income",
+       y="Frequencies") +
+  theme(axis.text.x = element_text(size = 6))
+Income_chart
+```
+# Contingency tables
+Create contingency tables with categorical predictors against Diabetes Status.
+```{r contingencies, warning=FALSE}
+diabetes |>
+  drop_na(Diabetes_binary, HighBP) |>
+  group_by(Diabetes_binary,HighBP) |>
+  summarize(count = n()) |>
+  pivot_wider(names_from = HighBP, values_from = count)
+
+diabetes |>
+  drop_na(Diabetes_binary, HighChol) |>
+  group_by(Diabetes_binary,HighChol) |>
+  summarize(count = n()) |>
+  pivot_wider(names_from = HighChol, values_from = count)
+
+diabetes |>
+  drop_na(Diabetes_binary, Smoker) |>
+  group_by(Diabetes_binary,Smoker) |>
+  summarize(count = n()) |>
+  pivot_wider(names_from = Smoker, values_from = count)
+
+diabetes |>
+  drop_na(Diabetes_binary, Stroke) |>
+  group_by(Diabetes_binary,Stroke) |>
+  summarize(count = n()) |>
+  pivot_wider(names_from = Stroke, values_from = count)
+
+diabetes |>
+  drop_na(Diabetes_binary, PhysActivity) |>
+  group_by(Diabetes_binary,PhysActivity) |>
+  summarize(count = n()) |>
+  pivot_wider(names_from = PhysActivity, values_from = count)
+
+diabetes |>
+  drop_na(Diabetes_binary, HvyAlcoholConsump) |>
+  group_by(Diabetes_binary,HvyAlcoholConsump) |>
+  summarize(count = n()) |>
+  pivot_wider(names_from = HvyAlcoholConsump, values_from = count)
+
+diabetes |>
+  drop_na(Diabetes_binary, Sex) |>
+  group_by(Diabetes_binary,Sex) |>
+  summarize(count = n()) |>
+  pivot_wider(names_from = Sex, values_from = count)
+
+diabetes |>
+  drop_na(Diabetes_binary, Age) |>
+  group_by(Diabetes_binary,Age) |>
+  summarize(count = n()) |>
+  pivot_wider(names_from = Age, values_from = count)
+
+diabetes |>
+  drop_na(Diabetes_binary, Income) |>
+  group_by(Diabetes_binary,Income) |>
+  summarize(count = n()) |>
+  pivot_wider(names_from = Income, values_from = count)
+```
+#Link to modeling hmtl
+[Click here for the Modeling Page](Modeling.html)
