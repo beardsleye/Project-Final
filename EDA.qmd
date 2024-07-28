@@ -33,6 +33,8 @@ diabetes<-diabetes_binary_health_indicators_BRFSS2015_csv |>
 
 head(diabetes)
 
+save(diabetes, file="diabetes.csv")
+
 ```
 # Check Missingness
 ```{r Missing, warning=FALSE}
