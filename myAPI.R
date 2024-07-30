@@ -4,7 +4,20 @@ library(caret)
 library(plumber)
 
 #read in data
-diabetes_binary_health_indicators_BRFSS2015_csv <- read_csv("C:/Users/beard/Downloads/diabetes_binary_health_indicators_BRFSS2015.csv.zip")
+is_function_run <- FALSE
+
+run_once_function <- function() {
+  if (!is_function_run) {
+    diabetes_binary_health_indicators_BRFSS2015_csv <- read_csv("diabetes_binary_health_indicators_BRFSS2015.csv.zip")
+    
+    print("Function is running")
+    
+    # Set the flag to TRUE to prevent further executions
+    is_function_run <<- TRUE
+  } else {
+    print("Function has already run")
+  }
+}
 
 #select predictors and convert factors
 diabetes<-diabetes_binary_health_indicators_BRFSS2015_csv |>
